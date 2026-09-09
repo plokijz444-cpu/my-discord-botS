@@ -6,7 +6,7 @@ from discord.ext import commands
 import datetime
 import re
 
-# 1. 가짜 웹서버 (그대로 두기)
+# 1. 렌더 전용 가짜 웹서버 코드
 app = Flask('')
 
 @app.route('/')
@@ -24,17 +24,18 @@ def keep_alive():
 keep_alive()
 
 
-# 2. 봇 설정 (질문자님 코드 그대로 들어간 부분)
+# 2. 봇 설정 및 기본 권한
 intents = discord.Intents.default()
 intents.message_content = True  
 intents.members = True          
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
 # ⚠️ 감지할 욕설/금지어 목록
-BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액"]
+BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액"]
 
 @bot.event
 async def on_ready():
