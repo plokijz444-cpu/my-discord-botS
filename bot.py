@@ -8,6 +8,23 @@ from discord.ext import commands
 import datetime
 import re
 
+# ================= [ 상단 추가 코드 ] =================
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    # Render가 지정하는 포트를 자동으로 가져옵니다.
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+# =====================================================
+
 # 1. 렌더 전용 가짜 웹서버 코드
 app = Flask('')
 
@@ -263,5 +280,7 @@ async def remove_punish_error(ctx, error):
         await ctx.send("❌ 이 명령어를 사용할 권한이 없습니다. (멤버 제재 권한 필요)", delete_after=5)
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
+
+keep_alive()
 
 bot.run(os.environ['BOT_TOKEN'])
