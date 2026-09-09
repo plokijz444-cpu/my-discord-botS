@@ -1,16 +1,35 @@
-import discord
-
 import os
+from threading import Thread
+from flask import Flask
+import discord
 from discord.ext import commands
 import datetime
 import re
 
+# 1. 가짜 웹서버 (그대로 두기)
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
+
+
+# 2. 봇 설정 (질문자님 코드 그대로 들어간 부분)
 intents = discord.Intents.default()
-intents.message_content = True  # 메시지 내용 읽기 권한
-intents.members = True          # 서버 멤버 및 역할 관리 권한
+intents.message_content = True  
+intents.members = True          
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
