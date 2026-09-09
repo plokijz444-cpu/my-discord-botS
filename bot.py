@@ -1,4 +1,6 @@
 import os
+from discord.ext import commands, tasks  # ◀ tasks가 없다면 추가
+import aiohttp   
 from threading import Thread
 from flask import Flask
 import discord
@@ -31,6 +33,17 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+RENDER_URL = "https://YOUR_APP_://onrender.com" # 본인 Render 주소로 변경
+
+@tasks.loop(minutes=5.0)
+async def keep_alive():
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(RENDER_URL, timeout=10):
+                pass
+    except Exception:
+        pass
+
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
@@ -38,6 +51,13 @@ PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액"]
 
 @bot.event
+async def on_ready():
+    # ◀ 이 두 줄을 기존 on_ready 함수 내부에 끼워 넣으세요.
+    if not keep_alive.is_running():
+        keep_alive.start()
+        
+    print(f'{bot.user.name} 봇이 준비되었습니다.') # (기존에 있던 코드들...)
+
 async def on_ready():
     print(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
     print("------ 자동 검열 + 수동 제재 + 제재 해제 통합 로그 시스템 가동 중 ------")
