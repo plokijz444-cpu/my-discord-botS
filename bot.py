@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 import datetime
 import re
-
+intents.message_content = True
 # ================= [ 상단 추가 코드 ] =================
 app = Flask('')
 
