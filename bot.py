@@ -292,6 +292,10 @@ async def on_message(message):
         await message.channel.send(say_text)
         return
 
-await bot.process_commands(message)
+    # 1. 봇 토큰 바로 위에 오는 것이 맞습니다.
+    # 2. 반드시 앞쪽에 들여쓰기(공백)가 있어서 on_message 안에 포함되어야 합니다.
+    await bot.process_commands(message) 
+
+# 3. bot.run은 들여쓰기 없이 맨 왼쪽에 붙습니다.
 
 bot.run(os.environ['BOT_TOKEN'])
