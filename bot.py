@@ -283,4 +283,15 @@ async def remove_punish_error(ctx, error):
 
 keep_alive()
 
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.content.startswith('!말해 '):
+        say_text = message.content[4:]
+        await message.channel.send(say_text)
+        return
+
+await bot.process_commands(message)
+
 bot.run(os.environ['BOT_TOKEN'])
