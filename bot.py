@@ -1,28 +1,10 @@
 import os
-from discord.ext import commands, tasks  # ◀ tasks가 없다면 추가
-import aiohttp   
 from threading import Thread
 from flask import Flask
 import discord
 from discord.ext import commands
 import datetime
 import re
-# ================= [ 상단 추가 코드 ] =================
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot is alive!"
-
-def run():
-    # Render가 지정하는 포트를 자동으로 가져옵니다.
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-# =====================================================
 
 # 1. 렌더 전용 가짜 웹서버 코드
 app = Flask('')
@@ -47,36 +29,15 @@ intents = discord.Intents.default()
 intents.message_content = True  
 intents.members = True          
 
-intents = discord.Intents.default()
-intents.message_content = True  
-
 bot = commands.Bot(command_prefix="!", intents=intents)
-
-RENDER_URL = "https://YOUR_APP_://onrender.com" # 본인 Render 주소로 변경
-
-@tasks.loop(minutes=5.0)
-async def keep_alive():
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(RENDER_URL, timeout=10):
-                pass
-    except Exception:
-        pass
 
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
 # ⚠️ 감지할 욕설/금지어 목록
-BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액", "애미", "애비"]
+BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "좆물", "봊물", "보지물", "자지물", "정액"]
 
 @bot.event
-async def on_ready():
-    # ◀ 이 두 줄을 기존 on_ready 함수 내부에 끼워 넣으세요.
-    if not keep_alive.is_running():
-        keep_alive.start()
-        
-    print(f'{bot.user.name} 봇이 준비되었습니다.') # (기존에 있던 코드들...)
-
 async def on_ready():
     print(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
     print("------ 자동 검열 + 수동 제재 + 제재 해제 통합 로그 시스템 가동 중 ------")
@@ -282,22 +243,5 @@ async def remove_punish_error(ctx, error):
         await ctx.send("❌ 이 명령어를 사용할 권한이 없습니다. (멤버 제재 권한 필요)", delete_after=5)
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
-
-keep_alive()
-
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    if message.content.startswith('!말해 '):
-        say_text = message.content[4:]
-        await message.channel.send(say_text)
-        return
-
-    # 1. 봇 토큰 바로 위에 오는 것이 맞습니다.
-    # 2. 반드시 앞쪽에 들여쓰기(공백)가 있어서 on_message 안에 포함되어야 합니다.
-    await bot.process_commands(message) 
-
-# 3. bot.run은 들여쓰기 없이 맨 왼쪽에 붙습니다.
 
 bot.run(os.environ['BOT_TOKEN'])
