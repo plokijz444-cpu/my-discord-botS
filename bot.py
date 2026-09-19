@@ -243,21 +243,30 @@ async def remove_punish_error(ctx, error):
         await ctx.send("❌ 이 명령어를 사용할 권한이 없습니다. (멤버 제재 권한 필요)", delete_after=5)
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
+# [수정] 봇이 작동하길 원하는 디스코드 채널(방)의 ID를 입력하세요 (따옴표 없이 숫자만)
+TARGET_CHANNEL_ID = 1550532864259391588
 
-# ----------------------------------------------------
-# [추가할 코드] 따라 말하기 명령어
-# ----------------------------------------------------
+def is_target_channel(ctx):
+    # 현재 명령어가 입력된 채널의 ID가 지정한 ID와 일치하는지 확인
+    return ctx.channel.id == TARGET_CHANNEL_ID
+
 @bot.command(name="따라해")
+@commands.check(is_target_channel) # 위에서 만든 채널 체크 기능 적용
 async def repeat(ctx, *, text: str):
     try:
-        await ctx.message.delete()  # 원래 메시지 삭제 (선택 사항)
+        await ctx.message.delete()
     except:
-        pass                        # 봇에게 권한이 없다면 오류 없이 무시
+        pass
         
-    await ctx.send(text)            # 사용자가 쓴 글 그대로 전송
+    await ctx.send(text)
 
-# ----------------------------------------------------
-# (이 아래에 기존에 있던 웹 서버 실행 및 bot.run(TOKEN) 코드가 위치합니다)
-# ----------------------------------------------------
+# (선택) 지정된 채널이 아닌 곳에서 사용했을 때 에러를 무시하거나 안내 메시지를 보낼 수 있습니다.
+@repeat.error
+async def repeat_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        # 지정된 방이 아닐 경우 아무 반응도 하지 않고 무시합니다.
+        # 만약 안내를 원하시면 아래 주석을 해제하세요.
+        # await ctx.send("이 채널에서는 사용할 수 없는 명령어입니다.", delete_after=5)
+        pass
 
 bot.run(os.environ['BOT_TOKEN'])
