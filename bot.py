@@ -35,7 +35,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
 # ⚠️ 감지할 욕설/금지어 목록
-BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "좆물", "봊물", "보지물", "자지물", "정액"]
+BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액"]
 
 @bot.event
 async def on_ready():
@@ -243,30 +243,33 @@ async def remove_punish_error(ctx, error):
         await ctx.send("❌ 이 명령어를 사용할 권한이 없습니다. (멤버 제재 권한 필요)", delete_after=5)
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
-# [수정] 봇이 작동하길 원하는 디스코드 채널(방)의 ID를 입력하세요 (따옴표 없이 숫자만)
-TARGET_CHANNEL_ID = 1550532864259391588
 
-def is_target_channel(ctx):
-    # 현재 명령어가 입력된 채널의 ID가 지정한 ID와 일치하는지 확인
-    return ctx.channel.id == TARGET_CHANNEL_ID
+# ------------------------------------------------------------------
+# [수정 사항 ①] 봇이 최종적으로 말을 해야 하는 '지정된 방'의 ID를 입력하세요.
+# (디스코드 채널 우클릭 -> 채널 ID 복사하기로 얻은 숫자를 적어주시면 됩니다)
+# ------------------------------------------------------------------
+TARGET_CHANNEL_ID = 1550532864259391588 
 
 @bot.command(name="따라해")
-@commands.check(is_target_channel) # 위에서 만든 채널 체크 기능 적용
 async def repeat(ctx, *, text: str):
+    """
+    어느 방에서든 !따라해 명령어를 쓰면, 
+    명령어 메시지는 삭제하고 지정된 방(TARGET_CHANNEL_ID)에만 말을 따라합니다.
+    """
+    # 1. 명령어를 친 방에서 사용자가 작성한 '!따라해 [할말]' 메시지를 즉시 삭제합니다.
     try:
         await ctx.message.delete()
-    except:
-        pass
-        
-    await ctx.send(text)
+    except Exception as e:
+        print(f"메시지 삭제 실패 (봇에게 메시지 관리 권한이 없을 수 있습니다): {e}")
 
-# (선택) 지정된 채널이 아닌 곳에서 사용했을 때 에러를 무시하거나 안내 메시지를 보낼 수 있습니다.
-@repeat.error
-async def repeat_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        # 지정된 방이 아닐 경우 아무 반응도 하지 않고 무시합니다.
-        # 만약 안내를 원하시면 아래 주석을 해제하세요.
-        # await ctx.send("이 채널에서는 사용할 수 없는 명령어입니다.", delete_after=5)
-        pass
+    # 2. 지정된 방(TARGET_CHANNEL_ID) 객체를 가져옵니다.
+    target_channel = bot.get_channel(TARGET_CHANNEL_ID)
+
+    # 3. 지정된 방에 사용자가 입력한 내용을 전송합니다.
+    if target_channel:
+        await target_channel.send(text)
+    else:
+        # 만약 방 ID가 틀렸거나 봇이 해당 방을 볼 수 없는 경우 렌더 로그에 출력합니다.
+        print(f"오류: ID {TARGET_CHANNEL_ID}에 해당하는 채널을 찾을 수 없습니다.")
 
 bot.run(os.environ['BOT_TOKEN'])
