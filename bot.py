@@ -244,4 +244,20 @@ async def remove_punish_error(ctx, error):
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
 
+# ----------------------------------------------------
+# [추가할 코드] 따라 말하기 명령어
+# ----------------------------------------------------
+@bot.command(name="따라해")
+async def repeat(ctx, *, text: str):
+    try:
+        await ctx.message.delete()  # 원래 메시지 삭제 (선택 사항)
+    except:
+        pass                        # 봇에게 권한이 없다면 오류 없이 무시
+        
+    await ctx.send(text)            # 사용자가 쓴 글 그대로 전송
+
+# ----------------------------------------------------
+# (이 아래에 기존에 있던 웹 서버 실행 및 bot.run(TOKEN) 코드가 위치합니다)
+# ----------------------------------------------------
+
 bot.run(os.environ['BOT_TOKEN'])
