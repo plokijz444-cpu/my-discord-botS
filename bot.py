@@ -372,7 +372,6 @@ async def remove_punish_error(ctx, error):
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
 
-keep_alive() # ➕ [추가] Render 서버 유지를 위한 Flask 웹서버 백그라운드 구동
-bot.run(os.environ.get('DISCORD_TOKEN')) # (기존에 있던 봇 실행 코드)
+keep_alive()
 
 bot.run(os.environ['BOT_TOKEN'])
