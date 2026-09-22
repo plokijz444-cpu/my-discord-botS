@@ -31,128 +31,6 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# --- [추가] 1. 목표 설정 명령어 (!목표설정 [숫자] [목표 제목]) ---
-@bot.command(name='목표설정')
-async def set_goal(ctx, target: int = None, *, title: str = None):
-    if target is None or target <= 0:
-        await ctx.reply('❌ 올바른 목표 포인트를 숫자로 입력해주세요. (예: !목표설정 1000 서버 활성화)')
-        return
-        
-    if title is None:
-        title = "현재 진행 중인 목표"
-        
-    data["goal_point"] = target
-    data["goal_title"] = title
-    save_data()
-    await ctx.reply(f'🎯 목표 **[{title}]**의 목표 포인트가 **{target:,}**으로 설정되었습니다!')
-
-# --- [추가] 2. 포인트 명령어 (!포인트 또는 !포인트 [숫자]) ---
-@bot.command(name='포인트')
-async def manage_points(ctx, amount: int = None):
-    if data["goal_point"] == 0:
-        await ctx.reply('📢 먼저 `!목표설정 [숫자]` 명령어로 목표를 설정해주세요!')
-        return
-
-    if amount is None:
-        await ctx.reply(f'📋 **목표: {data["goal_title"]}**\n📌 현재 포인트는 **{data["current_point"]:,} / {data["goal_point"]:,}** 입니다.')
-        return
-
-    if amount <= 0:
-        await ctx.reply('❌ 추가할 포인트는 1점 이상이어야 합니다.')
-        return
-
-    data["current_point"] += amount
-    save_data()
-
-    response = f'✨ **{amount:,} 포인트**가 적립되었습니다!\n📋 **목표: {data["goal_title"]}** ({data["current_point"]:,} / {data["goal_point"]:,})'
-    
-    if data["current_point"] >= data["goal_point"]:
-        response += f'\n\n🎉 **축하합니다! 설정한 목표 [{data["goal_title"]}] ({data["goal_point"]:,})를 달성했습니다!** 🥳'
-
-    await ctx.reply(response)
-
-# (기존에 있던 봇 객체 생성 코드 예시)
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
-
-# --- [추가] 데이터 저장 및 로드 설정 (JSON) ---
-DATA_DIR = '/data' if os.environ.get('RENDER') else './data'
-FILE_PATH = os.path.join(DATA_DIR, 'points.json')
-
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
-
-data = {
-    "goal_title": "기본 목표",
-    "goal_point": 0,
-    "current_point": 0
-}
-
-def load_data():
-    global data
-    if os.path.exists(FILE_PATH):
-        try:
-            with open(FILE_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if "goal_title" not in data:
-                    data["goal_title"] = "기본 목표"
-                print("💾 데이터를 성공적으로 불러왔습니다:", data)
-        except Exception as e:
-            print(f"❌ 데이터 로드 오류: {e}")
-    else:
-        save_data()
-
-def save_data():
-    try:
-        with open(FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-            print("💾 데이터가 안전하게 저장되었습니다.")
-    except Exception as e:
-        print(f"❌ 데이터 저장 오류: {e}")
-# --------------------------------------------------
-
-# (기존에 있던 봇 객체 생성 코드 예시)
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
-
-# --- [추가] 데이터 저장 및 로드 설정 (JSON) ---
-DATA_DIR = '/data' if os.environ.get('RENDER') else './data'
-FILE_PATH = os.path.join(DATA_DIR, 'points.json')
-
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
-
-data = {
-    "goal_title": "기본 목표",
-    "goal_point": 0,
-    "current_point": 0
-}
-
-def load_data():
-    global data
-    if os.path.exists(FILE_PATH):
-        try:
-            with open(FILE_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if "goal_title" not in data:
-                    data["goal_title"] = "기본 목표"
-                print("💾 데이터를 성공적으로 불러왔습니다:", data)
-        except Exception as e:
-            print(f"❌ 데이터 로드 오류: {e}")
-    else:
-        save_data()
-
-def save_data():
-    try:
-        with open(FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-            print("💾 데이터가 안전하게 저장되었습니다.")
-    except Exception as e:
-        print(f"❌ 데이터 저장 오류: {e}")
-# --------------------------------------------------
-
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
@@ -160,12 +38,6 @@ PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 BAD_WORDS = ["느금", "느금마", "금마", "니엄마", "너엄마", "너아빠", "너애비", "니애미", "ㄴㄱㅁ", "ㄴㅇㅁ", "니앰", "앰창", "your mom", "니애비", "느개비", "느금빠", "ㄴㄱㅃ", "금빠", "창년", "섹스", "색스", "색's", "섹's", "섹s", "색s", "운지", "응디", "운디", "응지", "보지", "자지", "좆물", "봊물", "보지물", "자지물", "정액"]
 
 @bot.event
-async def on_ready():
-    print(f'{bot.user.name} 봇이 준비되었습니다!')
-    # ...기존에 있던 다른 코드들...
-    
-    load_data() # ➕ [추가] 봇 시작 시 포인트 데이터 불러오기
-
 async def on_ready():
     print(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
     print("------ 자동 검열 + 수동 제재 + 제재 해제 통합 로그 시스템 가동 중 ------")
@@ -371,7 +243,5 @@ async def remove_punish_error(ctx, error):
         await ctx.send("❌ 이 명령어를 사용할 권한이 없습니다. (멤버 제재 권한 필요)", delete_after=5)
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
-
-keep_alive()
 
 bot.run(os.environ['BOT_TOKEN'])
