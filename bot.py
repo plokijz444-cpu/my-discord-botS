@@ -31,6 +31,8 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+user_goals = {}
+
 # ⚠️ 설정: 모든 제재/수동제재/제재지우기 로그가 전송될 전용 채널 ID를 입력하세요.
 PUNISH_LOG_CHANNEL_ID = 1546457831631224843  # 여기에 채널 ID 입력
 
@@ -137,6 +139,39 @@ async def on_message(message):
         await message.channel.send(f"반가워요, {message.author.mention}님! 오늘도 좋은 하루 되세요! 😊")
 
     await bot.process_commands(message)
+
+@bot.command(name="목표설정")
+async def set_goal(ctx, title: str, target_points: int):
+    user_id = ctx.author.id
+    user_goals[user_id] = {"title": title, "current": 0, "target": target_points}
+    await ctx.send(f"🎯 **{ctx.author.mention}님의 목표가 설정되었습니다!**\n📋 **목표 내용:** {title}\n💯 **목표 포인트:** {target_points} 포인트")
+
+@bot.command(name="포인트")
+async def manage_points(ctx, points: int = None):
+    user_id = ctx.author.id
+    if user_id not in user_goals:
+        await ctx.send(f"❌ {ctx.author.mention}님, 현재 설정된 목표가 없습니다. `!목표설정 (목표내용) (목표포인트)` 명령어로 먼저 목표를 정해주세요.")
+        return
+    goal = user_goals[user_id]
+    if points is None:
+        await ctx.send(f"📊 **{ctx.author.mention}님의 현재 진행 상황**\n📌 **정한 목표:** {goal['title']}\n📈 **포인트 현황:** ({goal['current']} / {goal['target']})")
+        return
+    goal['current'] += points
+    if goal['current'] >= goal['target']:
+        await ctx.send(f"🎉 **{ctx.author.mention}님이 정한 목표가 갱신 되었습니다!**\n👑 **달성한 목표:** {goal['title']} ({goal['current']} / {goal['target']})")
+        del user_goals[user_id]
+    else:
+        await ctx.send(f"📈 **포인트가 성공적으로 누적되었습니다!**\n📊 **진행 상황:** ({goal['current']} / {goal['target']})")
+
+@bot.command(name="목표포기")
+async def abandon_goal(ctx):
+    user_id = ctx.author.id
+    if user_id in user_goals:
+        abandoned_title = user_goals[user_id]['title']
+        del user_goals[user_id] 
+        await ctx.send(f"❌ **{ctx.author.mention}님의 {abandoned_title} 목표가 취소되었습니다!**")
+    else:
+        await ctx.send(f"❌ {ctx.author.mention}님, 현재 포기할 수 있는 목표가 존재하지 않습니다.")
 
 # 3. 🛠️ [수동 제재 명령어]
 @bot.command(name="제재")
