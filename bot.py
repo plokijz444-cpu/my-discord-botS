@@ -244,4 +244,6 @@ async def remove_punish_error(ctx, error):
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
 
+keep_alive()
+
 bot.run(os.environ['BOT_TOKEN'])
