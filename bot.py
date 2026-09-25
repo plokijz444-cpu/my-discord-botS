@@ -21,9 +21,6 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-keep_alive()
-
-
 # 2. 봇 설정 및 기본 권한
 intents = discord.Intents.default()
 intents.message_content = True  
