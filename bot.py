@@ -241,6 +241,16 @@ async def remove_punish_error(ctx, error):
     else:
         await ctx.send(f"❌ 에러가 발생했습니다: {error}", delete_after=5)
 
+import asyncio
+
 keep_alive()
 
-bot.run(os.environ['BOT_TOKEN'])
+# 디스코드 봇의 비동기 루프가 Flask 쓰레드에 방해받지 않도록 강제로 깨워 실행합니다.
+async def main():
+    async with bot:
+        await bot.start(os.environ['BOT_TOKEN'])
+
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    pass
