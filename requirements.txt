@@ -1,2 +1,3 @@
 discord.py
-flask
+Flask
+Werkzeug==2.2.2
