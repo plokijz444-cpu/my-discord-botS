@@ -1,4 +1,15 @@
 import os
+import sys
+import types
+
+# ========================================================
+# 🚨 [최신 파이썬 버전 에러 대응 패치] Python 3.13+ audioop 결손 문제 해결
+# ========================================================
+if 'audioop' not in sys.modules:
+    dummy_audioop = types.ModuleType('audioop')
+    dummy_audioop.error = Exception
+    sys.modules['audioop'] = dummy_audioop
+
 import discord
 from discord.ext import commands
 from aiohttp import web
